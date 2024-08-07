@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css'%}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <script src="{% static 'bootstrap/js/bootstrap.min.js'%}"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css'%}">
+    <title>ДПС.НЕТ</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=84c2e56f-c053-436b-b1e6-9e806eb1383b&lang=ru_RU"
+        type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.disableVerticalSwipes();
+    </script>
+    <style>
+        .modal-content.bg-dark {
+            background-color: #343a40;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+        .btn-light.text-dark {
+            background-color: white;
+            color: black;
+        }
+
+        .btn-light.text-dark:hover {
+            background-color: #e2e6ea;
+        }
+
+        .btn-danger.text-white {
+            background-color: red;
+            color: white;
+        }
+
+        .btn-danger.text-white:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Загрузочный экран -->
+    <div id="loading-screen">
+        <h1>ДПС.НЕТ</h1>
+        <div class="loading-bar">
+            <div></div>
+        </div>
+    </div>
+    <header style="z-index: 1; position: fixed; width: 100%;">
+        <div class="container my-navbar mt-2 py-2 mx-2" style="width: auto;">
+            <div class="row justify-content-between">
+                <div class="col-4 d-flex align-items-center justify-content-center ps-0">
+                    <a href="#" class="location my-anchor">
+                        <div>
+                            <img src="{% static 'media/icon/mapmarker.png' %}" alt="" height="28px" width="27px">
+                            <span class="fw-bold">Тверь</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-8 d-flex align-items-center justify-content-end">
+                    <div class="col-5 text-center">
+                        <div class="dps-quantity text-center d-flex align-items-center justify-content-center"
+                            style="height: 100%; width:100%;">
+                            <img src="{% static 'media/icon/police.png' %}" alt="" height="28px" width="27px" class="me-1">
+                            <span id='dps-quant' style="color:white;" class="fs-5 fw-bold">25</span>
+                        </div>
+                    </div>
+                    <div class="col-5 text-center d-flex align-items-center justify-content-center">
+                        <a href="#" class="profile" id="profileButton" onclick="getProfile()">
+                            <img src="{% static 'media/icon/profile.png' %}" alt="" height="36px" width="36px">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div id="alert-div">
+            <!-- <span id="alert-span" class="fs-5 fw-bold text-center"></span> -->
+        </div>
+        <div id="overlay-profile" class="overlay-profile">
+            <div class="container my-navbar mt-2 py-2 mx-2" style="width: auto;">
+                <div class="row justify-content-between">
+                    <div class="col-2 text-center d-flex align-items-center justify-content-center">
+                        <a href="#" id="profileBack" style="text-decoration: none;">
+                            <i class="fa-solid fa-circle-left fa-2x d-flex align-items-center justify-content-center"
+                                style="color: #ffffff;"></i>
+                        </a>
+                    </div>
+                    <div class="col-8 d-flex align-items-center justify-content-end">
+                        <div class="col-5 d-flex align-items-center justify-content-center ps-0">
+                            <a href="#" class="location my-anchor">
+                                <div>
+                                    <img src="{% static 'media/icon/mapmarker.png' %}" alt="" height="28px" width="27px">
+                                    <span class="fw-bold">Тверь</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container my-2">
+                <div class="row profile-row align-items-center justify-content-between mb-5">
+                    <div class="col-3 ps-4" id="user-photo">
+                        <img src="{% static "media/icon/avatar.jpg" %}" alt="user-photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    </div>
+                    <div class="col-7 pe-4" id="user-username">
+                        
+                    </div>
+                </div>
+                <div class="row mb-5 ">
+                    <div class="col-12 d-flex align-items-center justify-content-center" id="active-markers">
+                    </div>
+                </div>
+                <div class="row mb-5" style="position: absolute; bottom: 0; left: 17%; width: 70vw;">
+                    <div class="col-12 btn-col d-flex align-items-center justify-content-center" style="width:100%;">
+                        <a href="#" onclick="shareOnTelegram()" class="btn btn-primary btn-lg" style="box-shadow: 20px -12px 20px 0px rgba(40, 9, 219, 0.4);">Поделиться ДПС.нет</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="confirmationModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <p>Поставить маркер в это место?</p>
+                <textarea id="markerComment" placeholder="   Добавьте комментарий" rows="3" style="width: 100%;"></textarea>
+                <button id="confirmYes">
+                    <span class="fw-bold">Да</span>
+                </button>
+                <button id="confirmNo">
+                    <span class="fw-bold">Нет</span>
+                </button>
+            </div>
+        </div>
+        <div id='map' class="map"></div>
+        <i id="custom-marker-icon" class="fa-solid fa-handcuffs" style="display: none;"></i>
+        </div>
+    </main>
+    <footer style="position: absolute; bottom: 2%; left: 25%; z-index: 1; width: 50vw; border-radius: 16px;"
+        id="addMarkerBtn">
+        <div class="container btn-cont py-2" id="container" style="width: 100%; max-width: none; ">
+            <div class="row justify-content-center">
+                <div class="col-4 d-flex align-items-center justify-content-center">
+                    <img src="{% static 'media/icon/btn-img.png' %}" alt=""
+                        style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Модальное окно для отображения информации о маркере -->
+    <div class="modal fade" id="markerModal" tabindex="-1" aria-labelledby="markerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="markerModalLabel">Информация о посте ДПС</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- <p><strong>Широта:</strong> <span id="markerLat"></span></p>
+                    <p><strong>Долгота:</strong> <span id="markerLon"></span></p> -->
+                    <p><strong>Время установки:</strong> <span id="markerCreatedAt"></span></p>
+                    <p><strong>Комментарий:</strong> <span id="markerCommentDisplay"></span></p>
+                    <p><strong>Пользователь:</strong> <span id="markerUsername"></span></p> <!-- Add this line -->
+                </div>
+                <div class="modal-footer px-0">
+                    <div class="row">
+                        <div class="col-6">
+                            <button type="button" class="btn btn-light text-dark" id="extendMarkerBtn">Продлить</button>
+                        </div>
+                        <div class="col-6 text-end">
+                            <button type="button" class="btn btn-danger text-white" id="deleteMarkerBtn">Уехали</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js'%}"></script>
+    <script>
+        document.getElementById('container').addEventListener('click', function () {
+            this.classList.add('transparent');
+        });
+    </script>
+
+    <script>
+        document.getElementById('profileButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            document.getElementById('overlay-profile').classList.add('active');
+        });
+
+        // Для закрытия окна, если необходимо:
+        document.getElementById('profileBack').addEventListener('click', function () {
+            document.getElementById('overlay-profile').classList.remove('active');
+        });
+    </script>
+</body>
+
+</html>
