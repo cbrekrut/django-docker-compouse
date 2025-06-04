@@ -1,42 +1,60 @@
 version: '3.9'
 
 services:
-  django_gunicorn:
-    volumes:
-      - static:/static
+  postgres:
+    image: postgres:13
+    container_name: pg_db
+    restart: always
     env_file:
       - .env
-    build:
-      context: .
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres  
     environment:
+      # из .env подтягиваются эти переменные:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_HOST: postgres  
-      DB_PORT: 5432 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  django_gunicorn:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: django_app
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    # Том для хранения собранной статики
+    volumes:
+      - static:/app/ScreenBook/static
+    expose:
+      - "8000"
+    networks:
+      - backend
 
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx_proxy
+    restart: always
+    depends_on:
+      - django_gunicorn
+    # Монтируем тот же том, куда Django положил static
     volumes:
       - static:/static
     ports:
       - "80:80"
-    depends_on:
-      - django_gunicorn
-
-  postgres:
-    image: postgres:13  # Use a specific version of PostgreSQL
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - backend
 
 volumes:
-  static:
   postgres_data:
+  static:
+
+networks:
+  backend:
+    driver: bridge

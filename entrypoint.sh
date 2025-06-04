@@ -1,5 +1,18 @@
-python manage.py migrate --no-input
-python manage.py collectstatic --no-input
-DJANGO_SUPERUSER_PASSWORD=admin python manage.py createsuperuser --username admin --email admin@admin.com --noinput
 
-gunicorn django_project.wsgi:application --bind 0.0.0.0:8000
+set -e   
+cd /app
+
+
+echo "== Применяю миграции =="
+python /app/ScreenBook/manage.py migrate --noinput
+
+# 3) Собираем static
+echo "== Собираю static файлы =="
+python /app/ScreenBook/manage.py collectstatic --noinput
+
+echo "== Запускаю Gunicorn =="
+
+exec gunicorn ScreenBook.wsgi:application \
+     --bind 0.0.0.0:8000 \
+     --workers 3 \
+     --log-level info
