@@ -1,13 +1,33 @@
 #!/bin/sh
 set -e
 
-# Переходим в папку, где лежит manage.py и пакет ScreenBook
 cd /app/ScreenBook
 
 echo "=== Применяю миграции ==="
 python manage.py migrate --noinput
 
-echo "=== Собираю static файлы ==="
+echo "=== Создаю суперпользователя (если ещё нет) ==="
+python <<EOF
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ScreenBook.settings')
+import django
+django.setup()
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+username = 'admin'
+email = 'admin@example.com'
+password = '123456'
+
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username=username, email=email, password=password)
+    print(f"Суперпользователь '{username}' создан.")
+else:
+    print(f"Суперпользователь '{username}' уже существует.")
+EOF
+
+echo "=== Собираю static-файлы ==="
 python manage.py collectstatic --noinput
 
 echo "=== Запускаю Gunicorn ==="
