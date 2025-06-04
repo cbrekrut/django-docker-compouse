@@ -1,18 +1,19 @@
+#!/bin/sh
+set -e   # немедленно выйдем, если любая команда вернёт ненулевой код
 
-set -e   
-cd /app
+# Убедимся, что находимся в нужной директории:
+cd /app/ScreenBook
 
+echo "=== Применяю миграции ==="
+python manage.py migrate --noinput
 
-echo "== Применяю миграции =="
-python /app/ScreenBook/manage.py migrate --noinput
+echo "=== Собираю static файлы ==="
+# В settings.py у вас должен быть STATIC_ROOT = BASE_DIR / 'static'
+python manage.py collectstatic --noinput
 
-# 3) Собираем static
-echo "== Собираю static файлы =="
-python /app/ScreenBook/manage.py collectstatic --noinput
-
-echo "== Запускаю Gunicorn =="
-
+echo "=== Запускаю Gunicorn ==="
+# Gunicorn будет искать модуль ScreenBook.wsgi (файл /app/ScreenBook/ScreenBook/wsgi.py)
 exec gunicorn ScreenBook.wsgi:application \
      --bind 0.0.0.0:8000 \
-     --workers 3 \
+     --workers 2 \
      --log-level info

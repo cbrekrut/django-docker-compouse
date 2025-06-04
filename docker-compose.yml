@@ -8,7 +8,6 @@ services:
     env_file:
       - .env
     environment:
-      # из .env подтягиваются эти переменные:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -27,7 +26,7 @@ services:
       - .env
     depends_on:
       - postgres
-    # Том для хранения собранной статики
+    # Монтируем том, куда Django сложит статику (STATIC_ROOT)
     volumes:
       - static:/app/ScreenBook/static
     expose:
@@ -43,7 +42,7 @@ services:
     restart: always
     depends_on:
       - django_gunicorn
-    # Монтируем тот же том, куда Django положил static
+    # Монтируем тот же том static, но в /static для nginx
     volumes:
       - static:/static
     ports:
