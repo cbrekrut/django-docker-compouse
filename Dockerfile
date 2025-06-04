@@ -27,9 +27,7 @@ COPY . /app
 # Делаем entrypoint.sh исполняемым
 RUN chmod +x /app/entrypoint.sh
 
-# Передаём права папке /app непривилегированному пользователю
-RUN chown -R appuser:appuser /app
-USER appuser
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5) Открываем порт 8000 (Gunicorn)
