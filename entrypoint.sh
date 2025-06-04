@@ -1,19 +1,17 @@
 #!/bin/sh
 set -e
 
-cd /app
+# Переходим в папку, где лежит manage.py и пакет ScreenBook
+cd /app/ScreenBook
 
 echo "=== Применяю миграции ==="
-python ScreenBook/manage.py migrate --noinput
-
-mkdir -p /app/ScreenBook/static
-chown -R appuser:appuser /app/ScreenBook/static
+python manage.py migrate --noinput
 
 echo "=== Собираю static файлы ==="
-python ScreenBook/manage.py collectstatic --noinput
+python manage.py collectstatic --noinput
 
 echo "=== Запускаю Gunicorn ==="
 exec gunicorn ScreenBook.wsgi:application \
-    --bind 0.0.0.0:8000 \
-    --workers 3 \
-    --log-level info
+     --bind 0.0.0.0:8000 \
+     --workers 3 \
+     --log-level info
