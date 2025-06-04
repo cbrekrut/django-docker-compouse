@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ app.title }} — ScreenBook{% endblock %}
+
+{% block content %}
+<body data-app-slug="{{ app.slug }}">
+
+<div class="container px-4 pt-4">
+
+  <!-- Заголовок с кнопкой "Назад" -->
+<div class="d-flex align-items-center gap-3 mb-3">
+  <a href="{% url 'home' %}"
+     class="back-btn d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-left fs-5 text-dark"></i>
+  </a>
+  <h1 class="fw-bold mb-0">{{ app.title }}</h1>
+</div>
+
+  <!-- Вкладки -->
+  <ul class="filter-nav">
+    <li class="filter-nav__item {% if selected_tab == 'screens' %}active{% endif %}">
+      <a href="#" class="viewmode-tab" data-viewmode="screens">Экраны</a>
+    </li>
+    <li class="filter-nav__item {% if selected_tab == 'animations' %}active{% endif %}">
+      <a href="#" class="viewmode-tab" data-viewmode="animations">Анимации</a>
+    </li>
+    <span class="filter-nav__underline"></span>
+  </ul>
+
+  <!-- Галерея -->
+  <div id="galleryContainer" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 pt-3">
+    {% if selected_tab == 'animations' %}
+      {% for video in videos %}
+        <div class="col">
+          <video controls class="w-100 rounded-3 shadow-sm" style="aspect-ratio: 9/19.5; object-fit: cover;">
+            <source src="{{ video.video.url }}" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+          </video>
+        </div>
+      {% empty %}
+        <p class="text-muted">Нет видео</p>
+      {% endfor %}
+    {% else %}
+      {% for image in images %}
+        <div class="col">
+          <img src="{{ image.image.url }}" data-full="{{ image.image.url }}" alt="" class="img-fluid rounded-3 shadow-sm gallery-item" style="aspect-ratio: 9/19.5; object-fit: cover; cursor: pointer;">
+        </div>
+      {% empty %}
+        <p class="text-muted">Нет изображений</p>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+<!-- Modal -->
+<div class="modal fade sb-modal" id="previewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+
+      <div class="d-flex flex-column flex-md-row gap-4 align-items-start">
+        <!-- Центр: Превью с навигацией по бокам, кнопками и информацией -->
+        <div class="flex-grow-1 d-flex align-items-center justify-content-center position-relative">
+          
+          <!-- Информация в левом верхнем углу -->
+          <div class="position-absolute top-0 start-0 m-3 d-flex align-items-center gap-3 p-2">
+            <img src="{{ app.icon.url }}" alt="{{ app.title }}" class="sb-logo rounded">
+            <div>
+              <div class="sb-brand">{{ app.title }}</div>
+              <div class="sb-platform">{{ app.os_category }}</div>
+            </div>
+          </div>
+
+          <!-- Кнопки справа сверху -->
+          <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2">
+            <button id="downloadBtn" class="btn btn-light rounded-3 py-1 px-3 fw-medium">
+              Скачать
+            </button>
+            <button
+              class="btn btn-light rounded-3 py-1 px-3 fw-medium"
+              data-bs-toggle="modal"
+              data-bs-target="#feedbackModal"
+            >
+              Оставить отзыв
+            </button>
+
+            <!-- Кнопка закрытия -->
+            <button type="button" class="btn btn-light rounded-3 d-flex align-items-center justify-content-center ms-2"
+                    style="width: 38px; height: 38px; filter: none !important;"
+                    data-bs-dismiss="modal" aria-label="Close">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+
+          <!-- Левая стрелка -->
+          <button class="sb-nav-btn position-absolute start-0 translate-middle-y" style="top: 50%;" id="prevBtn">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <!-- Превью изображение -->
+          <img id="modalPreview" src="" class="sb-preview mx-5" alt="Preview">
+
+          <!-- Правая стрелка -->
+          <button class="sb-nav-btn position-absolute end-0 translate-middle-y" style="top: 50%;" id="nextBtn">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+{% endblock %}

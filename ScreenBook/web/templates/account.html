@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="account-page-wrapper d-flex align-items-center justify-content-center">
+  <div class="account-card">
+    <a href="{% url 'home' %}" class="account-back-btn">← На главную</a>
+    <h2 class="mb-4 mt-3">Профиль</h2>
+
+    <div class="mb-4">
+      <h6 class="account-label">Email</h6>
+      <div class="account-value">{{ user.email }}</div>
+    </div>
+
+    <div class="mb-4">
+      <h6 class="account-label">Подписка</h6>
+      {% if user.is_subscribed and user.subscription_end and user.subscription_end > now %}
+        <div class="account-status-active">Активна до {{ user.subscription_end|date:"d.m.Y" }}</div>
+        <small class="text-secondary">Началась: {{ user.subscription_start|date:"d.m.Y" }}</small>
+      {% else %}
+        <div class="account-status-inactive mb-2">У вас нет активной подписки</div>
+        <button
+            class="access-btn fw-semibold"
+            data-bs-toggle="modal"
+            data-bs-target="#subscribeModal"
+        >
+            <svg class="access-btn__icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg">
+            <path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 
+                    2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 
+                    2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 
+                    2 0 0 1 0 4zm4-9H9V6a3 3 0 0 1 6 0v2z"/>
+            </svg>
+            Оформить подписку
+        </button>
+      {% endif %}
+    </div>
+
+    <div>
+      <h6 class="account-label mb-2">Сменить пароль</h6>
+      <form method="post" action="{% url 'password_change' %}">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-3">
+            {{ field.label_tag }}
+            {{ field|add_class:"account-input" }}
+            {% if field.errors %}
+              <div class="text-danger small">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="account-submit-btn">Сменить пароль</button>
+      </form>
+    </div>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="account-logout-btn mt-5">Выйти из аккаунта</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

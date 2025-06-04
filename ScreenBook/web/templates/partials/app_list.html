@@ -1,0 +1,93 @@
+{% if apps %}
+  <div class="section">
+    <div class="row row-cols-4 g-4">
+      {% for app in apps %}
+        {% if forloop.counter <= 4 %}
+          <div class="col">
+            <a href="{% url 'app_detail' slug=app.slug %}" class="text-decoration-none">
+              <div class="app-card">
+                <img src="{{ app.main_image.url }}" class="app-image" alt="{{ app.title }}">
+                <div class="app-meta d-flex align-items-center mt-3 px-1">
+                  <img src="{{ app.icon.url }}" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;" alt="">
+                  <div class="ms-2">
+                    <div class="app-title text-start text-black">{{ app.title }}</div>
+                    <div class="app-category text-start">{{ app.app_category.name }}</div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        {% elif forloop.counter == 5 and not request.user.is_subscribed or not user.subscription_end > now %}
+          </div> <!-- Закрываем текущий .row -->
+          <section class="cta-block mt-5 sticky-top">
+            <h2 class="cta-block__title">Получите доступ ко всем скринам</h2>
+            <p class="cta-block__subtitle">
+              Присоединяйтесь к screenbook и вдохновляйтесь полной библиотекой
+            </p>
+            <button 
+              class="cta-block__btn" 
+              class="access-btn fw-semibold"
+              data-bs-toggle="modal"
+              data-bs-target="#subscribeModal">
+              <svg class="cta-block__icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path fill="#55FF00" d="M12 17.27L18.18 21l-1.64-7.03
+                     L22 9.24l-7.19-.61L12 2 9.19 8.63
+                     2 9.24l5.46 4.73L5.82 21z"/>
+              </svg>
+              Полный доступ
+            </button>
+          </section>
+          <div class="row row-cols-4 g-4 mt-2"> <!-- Новый ряд для блюра -->
+          <div class="col">
+            <div class="app-card position-relative">
+              <img src="{{ app.main_image.url }}" class="app-image blur-overlay" alt="{{ app.title }}">
+              <div class="app-meta d-flex align-items-center mt-3 px-1">
+                <img src="{{ app.icon.url }}" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;" alt="">
+                <div class="ms-2">
+                  <div class="app-title text-start text-black">{{ app.title }}</div>
+                  <div class="app-category text-start">{{ app.app_category.name }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% elif not user.is_authenticated or not user.is_subscribed or not user.subscription_end > now %}
+          <div class="col">
+            <div class="app-card position-relative">
+              <img src="{{ app.main_image.url }}" class="app-image blur-overlay" alt="{{ app.title }}">
+              <div class="app-meta d-flex align-items-center mt-3 px-1">
+                <img src="{{ app.icon.url }}" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;" alt="">
+                <div class="ms-2">
+                  <div class="app-title text-start text-black">{{ app.title }}</div>
+                  <div class="app-category text-start">{{ app.app_category.name }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="col">
+            <a href="{% url 'app_detail' slug=app.slug %}" class="text-decoration-none">
+              <div class="app-card">
+                <img src="{{ app.main_image.url }}" class="app-image" alt="{{ app.title }}">
+                <div class="app-meta d-flex align-items-center mt-3 px-1">
+                  <img src="{{ app.icon.url }}" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;" alt="">
+                  <div class="ms-2">
+                    <div class="app-title text-start text-black">{{ app.title }}</div>
+                    <div class="app-category text-start">{{ app.app_category.name }}</div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <p class="mb-3">Нет карточек по заданным условиям.</p>
+    <button class="btn btn-outline-dark fw-semibold" data-bs-toggle="modal" data-bs-target="#requestAppModal">
+      Запросить
+    </button>
+  </div>
+{% endif %}

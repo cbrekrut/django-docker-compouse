@@ -1,0 +1,539 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}ScreenBook{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="{% static 'style/style.css' %}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+  
+</head>
+<body>
+<header class="py-3 bg-white border-bottom w-100">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center gx-3 gy-2 flex-wrap">
+
+        <div class="col-auto d-flex align-items-center gap-2">
+            <img src="{% static 'img/logo.svg' %}" alt="Logo" style="height: 28px;">
+            <span class="fw-bold fs-5 mb-0">screen book</span>
+            <div class="segmented-control">
+              <a href="/?os=iOS" class="segmented-control__option {% if selected_os == 'iOS' %}segmented-control__option--active{% endif %} fw-semibold">
+                iOS
+              </a>
+              <a href="/?os=Android" class="segmented-control__option {% if selected_os == 'Android' %}segmented-control__option--active{% endif %} fw-semibold">
+                Android
+              </a>
+            </div>
+        </div>
+
+        <div class="col flex-grow-1 d-flex">
+            <div class="search-field">
+            <svg class="search-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="8" stroke="#C7C7C7" stroke-width="2"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#C7C7C7" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input
+                type="search"
+                class="search-field__input"
+                id="liveSearchInput"
+                placeholder="Искать по экранам, приложениям, элементам UI, ОС"
+            />
+            </div>
+        </div>
+
+        <div class="col-auto d-flex gap-2">
+                {% if user.is_authenticated and user.is_subscribed and user.subscription_end and user.subscription_end > now %}
+                <button
+                  class="btn btn-light btn-sm review-btn fw-semibold d-flex align-items-center"
+                  data-bs-toggle="modal"
+                  data-bs-target="#reviewModal"
+                >
+                  Оставить отзыв
+                </button>
+                {% else %}
+                <button
+                    class="access-btn fw-semibold"
+                    data-bs-toggle="modal"
+                    data-bs-target="#subscribeModal"
+                >
+                    <svg class="access-btn__icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 
+                            2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 
+                            2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 
+                            2 0 0 1 0 4zm4-9H9V6a3 3 0 0 1 6 0v2z"/>
+                    </svg>
+                    Полный доступ
+                </button>
+                {% endif %}
+            {% if user.is_authenticated %}
+                <a href="{% url 'account' %}" class="avatar-circle d-flex align-items-center justify-content-center text-decoration-none">
+                <i class="bi bi-person-fill avatar-icon"></i>
+                </a>
+            {% else %}
+                <button
+                class="btn btn-light btn-sm review-btn fw-semibold d-flex align-items-center"
+                data-bs-toggle="modal"
+                data-bs-target="#accessModal"
+                >
+                Войти
+                </button>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+</header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+<footer class="site-footer">
+  <div class="site-footer__inner px-4">
+    <div class="site-footer__brand">
+       <img src="{% static 'img/logo.svg' %}" alt="Logo" style="height: 28px;" class="site-footer__logo">
+      <div class="site-footer__text">
+        <div class="site-footer__title fw-bold">screen book</div>
+        <div class="site-footer__tagline">
+          Коллекция скриншотов русскоязычных приложений для анализа пользовательского интерфейса и дизайна.
+          Помогает выявлять лучшие практики в UX/UI и создавать более удобные приложения, привлекая больше пользователей.
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__support d-flex flex-column">
+      <div class="site-footer__support-label mb-2 fw-semibold">Поддержка</div>
+      <button class="site-footer__telegram-btn">
+        <i class="bi bi-telegram"></i>
+        Telegram
+      </button>
+    </div>
+  </div>
+</footer>
+<div class="modal fade" id="subscribeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered justify-content-center">
+    <div class="modal-content p-4 bg-black text-white rounded-4">
+      <div class="d-flex justify-content-between align-items-start mb-4">
+        <h4 class="fw-bold">Разблокируйте все скрины<br>и функции!</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="fs-1 fw-bold mb-2">1 000 ₽<span class="fs-5 fw-normal text-secondary"> / за 6 месяцев</span></div>
+      <ul class="list-unstyled mb-4">
+        <li class="mb-2">✔ Все скриншоты и приложения без блюра</li>
+        <li class="mb-2">✔ Поиск по любым фильтрам</li>
+        <li class="mb-2">✔ Просмотр анимаций</li>
+        <li class="mb-2">✔ Доступ на 6 месяцев всего за 1000 ₽ вместо 6000 ₽</li>
+      </ul>
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'start_payment' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn w-100 py-2 text-black fw-semibold" style="background-color: #ACFF5E;">
+            Оформить подписку
+          </button>
+        </form>
+      {% else %}
+        <button
+          class="btn w-100 py-2 text-black fw-semibold"
+          style="background-color: #ACFF5E;"
+          data-bs-toggle="modal"
+          data-bs-target="#accessModal">
+          Войти, чтобы оформить подписку
+        </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="requestAppModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content request-modal-content p-4">
+
+      <!-- Шапка -->
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <h5 class="request-modal-title" id="requestModalTitle">Добавить новое</h5>
+        <button type="button" class="btn-close request-modal-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+
+      <!-- Форма запроса -->
+      <form id="requestForm">
+        <div id="requestFormContent">
+          <div class="mb-3">
+            <label class="form-label request-label">Что хотели бы добавить?</label>
+            <textarea class="form-control request-input" rows="2" placeholder="Название приложения, экранов, UI-элементов" required></textarea>
+          </div>
+          <div class="mb-4">
+            <label class="form-label request-label">Могли бы вы нам помочь с наполнением сайта?</label>
+            <input type="text" class="form-control request-input" placeholder="Если хотите, укажите свой телеграм ник">
+          </div>
+          <button type="submit" class="btn request-submit-btn w-100">
+            Отправить
+          </button>
+        </div>
+
+        <!-- Сообщение об успешной отправке -->
+        <div id="requestSuccessContent" class="d-none text-center">
+          <p class="mb-2">Ваше пожелание отправлено!</p>
+          <p class="text-muted mb-4">Если хотите связаться быстрее, напишите в поддержку.</p>
+          <a href="https://t.me/YOUR_SUPPORT_BOT" target="_blank" class="btn btn-light w-100 mb-3" style="border-radius: 12px;">Написать в поддержку Telegram</a>
+          <button type="button" class="btn request-submit-btn w-100" data-bs-dismiss="modal">Закрыть</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    <div class="modal-content sb-review-modal p-4" style="background:#fff; border-radius:20px; border:none; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold" style="font-size:20px; color:#000; margin:0;">Оставить отзыв</h5>
+        <button type="button" class="btn-close sb-review-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+
+      <form id="reviewForm" method="post" action="{% url 'submit_review' %}">
+        <div class="mb-3">
+          <label style="font-size:14px; font-weight:500; color:#000; margin-bottom:4px;">Что вам нравится в Screenbook?</label>
+          <textarea
+            name="positive"
+            class="form-control"
+            placeholder="Расскажите, за что вы нас цените — нам это важно"
+            style="border:none; background-color:#f6f6f6; font-size:14px; color:#000; border-radius:12px; padding:12px 14px; resize:none; box-shadow:none;"
+          ></textarea>
+        </div>
+        <div class="mb-3">
+          <label style="font-size:14px; font-weight:500; color:#000; margin-bottom:4px;">Что нам можно улучшить?</label>
+          <textarea
+            name="negative"
+            class="form-control"
+            placeholder="Может, не хватает каких-то приложений, экранов или функций?"
+            style="border:none; background-color:#f6f6f6; font-size:14px; color:#000; border-radius:12px; padding:12px 14px; resize:none; box-shadow:none;"
+          ></textarea>
+        </div>
+        <div class="mb-4">
+          <label style="font-size:14px; font-weight:500; color:#000; margin-bottom:4px;">Хотите участвовать в закрытых тестированиях или помогать с проектом?</label>
+          <input
+            name="contact"
+            type="text"
+            class="form-control"
+            placeholder="Если хотите, укажите свой телеграм ник"
+            style="border:none; background-color:#f6f6f6; font-size:14px; color:#000; border-radius:12px; padding:12px 14px; box-shadow:none;"
+          >
+        </div>
+        <button type="submit" class="w-100" style="background-color:#000; color:#fff; font-weight:600; border:none; border-radius:12px; padding:10px; transition:background-color 0.2s;">
+          Отправить
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    <div class="modal-content sb-feedback-modal p-4" style="background:#fff; border-radius:20px; border:none; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold" style="font-size:20px; color:#000; margin:0;">Оставить отзыв</h5>
+        <button type="button" class="sb-feedback-close-btn btn-close" data-bs-dismiss="modal" aria-label="Закрыть">
+        </button>
+      </div>
+
+      <form id="feedbackForm" method="post" action="{% url 'submit_feedback' %}">
+        <div class="mb-3">
+          <label style="font-size:14px; font-weight:500; color:#000; margin-bottom:4px;">Вы заметили ошибку в скриншоте?</label>
+          <textarea
+            name="issue"
+            class="form-control"
+            placeholder="Укажите, что не так — мы быстро исправим"
+            style="border:none; background-color:#f6f6f6; font-size:14px; color:#000; border-radius:12px; padding:12px 14px; resize:none; box-shadow:none;"
+          ></textarea>
+        </div>
+        <div class="mb-3">
+          <label style="font-size:14px; font-weight:500; color:#000; margin-bottom:4px;">Хотите нам помочь или участвовать в закрытых тестированиях?</label>
+          <input
+            name="contact"
+            type="text"
+            class="form-control"
+            placeholder="Если хотите, укажите свой телеграм ник"
+            style="border:none; background-color:#f6f6f6; font-size:14px; color:#000; border-radius:12px; padding:12px 14px; box-shadow:none;"
+          >
+        </div>
+
+        <!-- Сообщение об ошибке -->
+        <div id="feedbackError" class="text-danger mb-3" style="display:none;">
+          Ошибка при отправке. Попробуйте еще раз или напишите напрямую в поддержку в Telegram <a href="https://t.me/uxradio" target="_blank">@uxradio</a>
+        </div>
+
+        <button type="submit" class="w-100" style="background-color:#000; color:#fff; font-weight:600; border:none; border-radius:12px; padding:10px; transition:background-color 0.2s;">
+          Отправить
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+  {% include "access/login_register.html" %}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('requestForm');
+  const formBlock = document.getElementById('requestFormContent');
+  const successBlock = document.getElementById('requestSuccessContent');
+  const title = document.getElementById('requestModalTitle');
+
+  form?.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Здесь можно добавить реальную отправку, сейчас просто "успешно"
+    formBlock.classList.add('d-none');
+    successBlock.classList.remove('d-none');
+    title.textContent = 'Отправлено';
+  });
+});
+</script>
+  <script>
+    document.querySelectorAll('.segmented-control__option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parent = btn.parentNode;
+        parent.querySelector('.segmented-control__option--active')?.classList.remove('segmented-control__option--active');
+        btn.classList.add('segmented-control__option--active');
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const nav = document.querySelector('.filter-nav');
+      const underline = nav?.querySelector('.filter-nav__underline');
+      const items = nav?.querySelectorAll('.filter-nav__item');
+      function moveUnderline(item) {
+        underline.style.width = item.offsetWidth + 'px';
+        underline.style.left = item.offsetLeft + 'px';
+      }
+      items?.forEach(item => {
+        item.addEventListener('click', e => {
+          e.preventDefault();
+          nav.querySelector('.filter-nav__item.active')?.classList.remove('active');
+          item.classList.add('active');
+          moveUnderline(item);
+        });
+      });
+      if (underline && nav?.querySelector('.filter-nav__item.active')) {
+        moveUnderline(nav.querySelector('.filter-nav__item.active'));
+      }
+    });
+  </script>
+ <script>
+function debounce(func, delay) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const isDetailPage = !!document.getElementById('galleryContainer');
+  const appSlug = document.body.dataset.appSlug || null;
+
+  if (isDetailPage && appSlug) {
+    // --- Логика для страницы app_detail ---
+    document.querySelectorAll('[data-viewmode]').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const mode = this.dataset.viewmode;
+
+        fetch(`/app/${appSlug}/?viewmode=${mode}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+          const container = document.getElementById('galleryContainer');
+          if (container) container.innerHTML = data.html;
+
+          // обновление активного таба
+          document.querySelectorAll('[data-viewmode]').forEach(el => el.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+    });
+  } else {
+    // --- Логика для главной страницы с фильтрами ---
+    const filters = {
+      tab: '{{ selected_tab }}',
+      os: '{{ selected_os }}',
+      screen_type: '',
+      app_category: '',
+      ui_element: '',
+      q: ''
+    };
+
+    const container = document.getElementById('appsContainer');
+
+    function loadFilteredApps() {
+      const params = new URLSearchParams(filters).toString();
+      fetch(`/ajax/filter-apps/?${params}`)
+        .then(response => response.json())
+        .then(data => {
+          container.innerHTML = data.html;
+        });
+    }
+
+    // Вкладки
+    document.querySelectorAll('.filter-nav__item a').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const tab = new URL(this.href).searchParams.get('tab') || 'apps';
+        filters.tab = tab;
+        loadFilteredApps();
+
+        document.querySelectorAll('.filter-nav__item').forEach(item => item.classList.remove('active'));
+        this.closest('.filter-nav__item').classList.add('active');
+      });
+    });
+
+    // Переключение ОС
+    document.querySelectorAll('.segmented-control__option').forEach(option => {
+      option.addEventListener('click', function () {
+        filters.os = this.textContent.trim();
+        loadFilteredApps();
+      });
+    });
+
+    // Обработка фильтров (dropdown items)
+    document.querySelectorAll('.filter-option').forEach(option => {
+      option.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const key = this.dataset.filter;
+        const id = this.dataset.id;
+        const name = this.dataset.name;
+
+        filters[key] = id;
+        loadFilteredApps();
+
+        const dropdown = this.closest('.dropdown');
+        const btn = dropdown.querySelector('.filter-btn');
+        const label = btn.querySelector('.filter-label');
+        label.textContent = name;
+        btn.classList.add('active');
+
+        // Скрыть стрелочку, добавить крестик
+        if (!btn.querySelector('.clear-icon')) {
+          const clear = document.createElement('span');
+          clear.className = 'clear-icon';
+          clear.innerHTML = '&times;';
+          btn.appendChild(clear);
+
+          clear.addEventListener('click', function (e) {
+            e.stopPropagation();
+            filters[key] = '';
+            loadFilteredApps();
+            label.textContent = label.dataset.default;
+            btn.classList.remove('active');
+            clear.remove();
+          });
+        }
+
+        bootstrap.Dropdown.getInstance(btn)?.hide();
+      });
+    });
+
+    // Клик по кнопке активного фильтра = сброс
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        if (btn.classList.contains('active')) {
+          e.preventDefault();
+          const label = btn.querySelector('.filter-label');
+          const key = label.dataset.filterKey;
+
+          filters[key] = '';
+          loadFilteredApps();
+          label.textContent = label.dataset.default;
+          btn.classList.remove('active');
+          btn.querySelector('.clear-icon')?.remove();
+        }
+      });
+    });
+
+    // Поиск
+    const searchInput = document.getElementById('liveSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', debounce((e) => {
+        filters.q = e.target.value.trim();
+        loadFilteredApps();
+      }, 300));
+    }
+  }
+});
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    const modalImg = document.getElementById('modalPreview');
+    const galleryItems = Array.from(document.querySelectorAll('.gallery-item'));
+    let currentIndex = 0;
+
+    function updateModal(index) {
+      const item = galleryItems[index];
+      const fullSrc = item.getAttribute("data-full");
+      if (fullSrc) {
+        modalImg.src = fullSrc;
+      }
+      currentIndex = index;
+    }
+
+    galleryItems.forEach((item, index) => {
+      item.addEventListener("click", function () {
+        updateModal(index);
+        modal.show();
+      });
+    });
+
+    // Стрелки
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    if (prevBtn && nextBtn) {
+      prevBtn.addEventListener("click", () => {
+        if (currentIndex > 0) updateModal(currentIndex - 1);
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentIndex < galleryItems.length - 1) updateModal(currentIndex + 1);
+      });
+    }
+  });
+</script>
+<script>
+  document.getElementById('downloadBtn').addEventListener('click', function () {
+    const img = document.getElementById('modalPreview');
+    const imageUrl = img.src;
+
+    let extension = imageUrl.split('.').pop().split('?')[0].toLowerCase();
+    if (extension.length > 5 || extension.includes('/')) {
+      extension = 'jpg';
+    }
+
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `preview.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    {% if login_form.errors or register_form.errors %}
+      const modal = new bootstrap.Modal(document.getElementById('accessModal'));
+      modal.show();
+
+      {% if active_tab == "register" %}
+        document.getElementById('register-tab').click();
+      {% else %}
+        document.getElementById('login-tab').click();
+      {% endif %}
+    {% endif %}
+  });
+</script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

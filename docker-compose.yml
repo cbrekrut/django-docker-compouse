@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: pg_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  django_gunicorn:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: django_app
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    # Монтируем том, куда Django сложит статику (STATIC_ROOT)
+    volumes:
+      - static:/app/ScreenBook/static
+    expose:
+      - "8000"
+    networks:
+      - backend
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx_proxy
+    restart: always
+    depends_on:
+      - django_gunicorn
+    # Монтируем тот же том static, но в /static для nginx
+    volumes:
+      - static:/static
+    ports:
+      - "80:80"
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+  static:
+
+networks:
+  backend:
+    driver: bridge

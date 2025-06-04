@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Главная - ScreenBook{% endblock %}
+{% block extra_head %}
+<style>
+    .app-card { background:#fff; border-radius:16px; transition:box-shadow .2s; padding:10px; }
+    .app-card:hover { box-shadow:0 0 0 1px #e6e6e6,0 6px 20px rgba(0,0,0,0.05); }
+    .app-image { width:100%; aspect-ratio:9/19.5; object-fit:cover; border-radius:16px; }
+    .app-meta { margin-top:12px; font-size:14px; }
+    .app-meta img { width:28px; height:28px; margin-right:10px; border-radius:50%; object-fit:cover; }
+    .app-title { font-size:14px; font-weight:600; line-height:1.1; }
+    .app-category { font-size:13px; color:#6c757d; }
+    .section { padding:20px 0; }
+  </style>
+{% endblock %}
+{% block content %}
+<div class="container px-4"></div>
+
+<section class="bg-white border-bottom py-2">
+  <div class="container-fluid px-4">
+    <ul class="filter-nav">
+      <li class="filter-nav__item {% if selected_tab == 'apps' %}active{% endif %}">
+        <a href="?tab=apps">Приложения</a>
+      </li>
+      <li class="filter-nav__item {% if selected_tab == 'screen' %}active{% endif %}">
+        <a href="?tab=screen">Экраны</a>
+      </li>
+      <li class="filter-nav__item {% if selected_tab == 'animation' %}active{% endif %}">
+        <a href="?tab=animation">Анимации</a>
+      </li>
+      <span class="filter-nav__underline"></span>
+    </ul>
+  </div>
+</section>
+
+<form id="filterForm" class="container my-3 d-flex flex-wrap gap-2 align-items-center">
+  <!-- Тип экрана -->
+  <div class="dropdown">
+    <button class="filter-btn dropdown-toggle" type="button" id="screenDropdown" data-bs-toggle="dropdown">
+      <span class="filter-label" data-filter-key="screen_type" data-default="Тип экрана">Тип экрана</span>
+      <i class="bi bi-chevron-down"></i>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="screenDropdown">
+      {% for obj in filter_screen_types %}
+        <li>
+          <a class="dropdown-item filter-option"
+            data-filter="screen_type"
+            data-id="{{ obj.id }}"
+            data-name="{{ obj.name }}">
+            {{ obj.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Категория приложений -->
+  <div class="dropdown">
+    <button class="filter-btn dropdown-toggle" type="button" id="appDropdown" data-bs-toggle="dropdown">
+      <span class="filter-label" data-filter-key="app_category" data-default="Категория приложений">Категория приложений</span>
+      <i class="bi bi-chevron-down"></i>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="appDropdown">
+      {% for obj in filter_app_categories %}
+        <li>
+          <a class="dropdown-item filter-option"
+            data-filter="app_category"
+            data-id="{{ obj.id }}"
+            data-name="{{ obj.name }}">
+            {{ obj.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- UI-элемент -->
+  <div class="dropdown">
+    <button class="filter-btn dropdown-toggle" type="button" id="uiDropdown" data-bs-toggle="dropdown">
+      <span class="filter-label" data-filter-key="ui_element" data-default="UI-элемент">UI-элемент</span>
+      <i class="bi bi-chevron-down"></i>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="uiDropdown">
+      {% for obj in filter_ui_elements %}
+        <li>
+          <a class="dropdown-item filter-option"
+            data-filter="ui_element"
+            data-id="{{ obj.id }}"
+            data-name="{{ obj.name }}">
+            {{ obj.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</form>
+
+<div class="container" id="appsContainer">
+  {% include 'partials/app_list.html' %}
+</div>
+{% endblock %}

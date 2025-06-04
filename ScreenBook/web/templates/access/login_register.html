@@ -1,0 +1,139 @@
+<style>
+  .form-error {
+    background-color: #ffe6e6;
+    color: #b30000;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+</style>
+
+<div class="modal fade" id="accessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Доступ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link{% if active_tab == "login" %} active{% endif %}"
+              id="login-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#login"
+              type="button"
+              role="tab"
+              aria-selected="{% if active_tab == "login" %}true{% else %}false{% endif %}"
+            >Вход</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link{% if active_tab == "register" %} active{% endif %}"
+              id="register-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#register"
+              type="button"
+              role="tab"
+              aria-selected="{% if active_tab == "register" %}true{% else %}false{% endif %}"
+            >Регистрация</button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <div
+            class="tab-pane fade{% if active_tab == "login" %} show active{% endif %}"
+            id="login"
+            role="tabpanel"
+          >
+            <form method="post" action="{% url 'login' %}">
+              {% csrf_token %}
+              {% if login_form.non_field_errors %}
+                <div class="form-error mb-3">{{ login_form.non_field_errors.0 }}</div>
+              {% endif %}
+
+              <div class="mb-3">
+                {{ login_form.username.label_tag }}
+                {{ login_form.username }}
+                {% for err in login_form.username.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ login_form.password.label_tag }}
+                {{ login_form.password }}
+                {% for err in login_form.password.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="form-check mb-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="remember-me"
+                  name="remember"
+                >
+                <label class="form-check-label" for="remember-me">Запомнить меня</label>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">Войти</button>
+            </form>
+          </div>
+
+          <div
+            class="tab-pane fade{% if active_tab == "register" %} show active{% endif %}"
+            id="register"
+            role="tabpanel"
+          >
+            <form method="post" action="{% url 'register' %}">
+              {% csrf_token %}
+              {% if register_form.non_field_errors %}
+                <div class="form-error mb-3">{{ register_form.non_field_errors.0 }}</div>
+              {% endif %}
+
+              <div class="mb-3">
+                {{ register_form.username.label_tag }}
+                {{ register_form.username }}
+                {% for err in register_form.username.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ register_form.email.label_tag }}
+                {{ register_form.email }}
+                {% for err in register_form.email.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ register_form.password1.label_tag }}
+                {{ register_form.password1 }}
+                {% for err in register_form.password1.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ register_form.password2.label_tag }}
+                {{ register_form.password2 }}
+                {% for err in register_form.password2.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+
+              <button type="submit" class="btn btn-success w-100">
+                Зарегистрироваться
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
